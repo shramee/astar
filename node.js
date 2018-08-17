@@ -3,21 +3,24 @@ function Node( i, j, blocked ) {
 	this.j = j;
 	this.blocked = blocked;
 	this.parent = null;
+	this.travelled = null;
+	this.estimate = null;
 }
 
 Node.radius = 25;
+Node.offset = 25;
 
+Node.prototype.coords = function ( clr ) {
+	return [
+		( this.i + .5 ) * Node.radius + Node.offset,
+		( this.j + .5 ) * Node.radius + Node.offset
+	];
+};
 Node.prototype.show = function ( clr ) {
 	var
-		d = Node.radius,
-		r = d * .5;
-	fill( clr );
-	if ( this.blocked ) {
-		fill( clr );
+		xy = this.coords();
+	if ( clr ) {
+		stroke( clr );
 	}
-	ellipse(
-		( this.i + 1.5 ) * d,
-		( this.j + 1.5 ) * d,
-		r, r
-	);
+	point( xy[0], xy[1] );
 };

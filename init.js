@@ -1,7 +1,7 @@
 var
 	nodes = [],
 	blockedNodes = [],
-	nodesCount = 25,
+	nodesCount = 50,
 	canvasSize = 700,
 	aStar, bgClr;
 
@@ -35,40 +35,50 @@ function setup() {
 }
 
 function draw() {
-	var i;
+	// Do the algo suff
+	var i, j, coords, message;
+
+	message = aStar.iterate();
+
 	background( bgClr );
-	noStroke();
+	noFill();
+	strokeWeight( Node.radius * .5 );
 	for ( i = 0; i < nodesCount; i ++ ) {
-		for ( var j = 0; j < nodesCount; j ++ ) {
+		for ( j = 0; j < nodesCount; j ++ ) {
 			if ( blockedNodes[i][j] ) {
 				blockedNodes[i][j].show( color( 0, 0, 0 ) );
 			}
 		}
 	}
 
-	// Do the algo suff
-	var message = aStar.iterate();
-
 	for ( i = 0; i < aStar.openSet.length; i ++ ) {
-		aStar.openSet[i].show( color( '#0984e3' ) );
-	}
-
-	var parent = aStar.currentNode;
-	while ( parent ) {
-		parent.show( background );
-		parent = this.parent;
+		aStar.openSet[i].show( '#74b9ff' );
 	}
 
 	for ( i = 0; i < aStar.closedSet.length; i ++ ) {
-		aStar.closedSet.show( color( '#b2bec3' ) );
+		aStar.closedSet[i].show( '#b2bec3' );
 	}
 
-	aStar.end.show( color( '#e84393' ) );
+	aStar.end.show( '#e84393' );
+
+	var parent = aStar.currentNode;
+	stroke( '#0984e3' );
+	beginShape();
+	while ( parent ) {
+//		parent.show( bgClr );
+		coords = parent.coords();
+		vertex( coords[0], coords[1] );
+		parent = parent.parent;
+	}
+	endShape();
 
 	if ( message ) {
-		console.log( message );
+		noStroke();
+		fill( '#000' );
 		textSize( 32 );
 		textAlign( CENTER );
 		text( message, canvasSize/2, canvasSize + 25 );
+		noLoop();
 	}
+
 }
