@@ -2,6 +2,7 @@ var
 	nodes = [],
 	nodesCount = 50,
 	canvasSize = 700,
+	gridBuilder = 1,
 	aStar, bgClr;
 
 function setup() {
@@ -18,7 +19,8 @@ function setup() {
 
 			var freeNode = i === j ?  i === nodesCount - 1 || i === 0 : false;
 
-			nodes[i][j] = new Node( i, j, ! ( freeNode || 0.3 < Math.random() ) );
+//			nodes[i][j] = new Node( i, j, ! ( freeNode || 0.3 < Math.random() ) );
+			nodes[i][j] = new Node( i, j );
 		}
 	}
 
@@ -26,14 +28,59 @@ function setup() {
 }
 
 function draw() {
+	background( bgClr );
+	strokeWeight( 2 );
+	stroke( '#000' );
+	noFill();
+	rect( 25, 25, 650, 650 );
+
+	strokeWeight( Node.radius * .5 );
+
+	if ( gridBuilder ) {
+		drawGridBuilder();
+	} else {
+		drawAlgo();
+	}
+}
+
+function drawGridBuilder() {
+	var xy;
+	for ( i = 0; i < nodesCount; i ++ ) {
+		for ( j = 0; j < nodesCount; j ++ ) {
+			xy = nodes[i][j].coords();
+			if ( nodes[i][j].blocked ) {
+				nodes[i][j].show( color( 0, 0, 0 ) );
+			}
+			if ( mouseIsPressed ) {
+				if (
+					Math.abs( mouseX - xy[0] ) < 7 &&
+					Math.abs( mouseY - xy[1] ) < 7
+				) {
+					nodes[i][j].blocked = true;
+				}
+			}
+		}
+	}
+
+	aStar.end.show( '#e84393' );
+	aStar.start.show( '#0984e3' );
+
+	noStroke();
+	fill( '#000' );
+	textSize( 32 );
+	textAlign( CENTER );
+	xy = [ canvasSize/2, canvasSize + 34 ]
+	text( 'Click to start', xy[0], xy[1] );
+}
+
+function drawAlgo() {
 	// Do the algo suff
 	var i, j, coords, message;
 
-	message = aStar.iterate();
+	if ( ! message ) {
+		message = aStar.iterate();
+	}
 
-	background( bgClr );
-	noFill();
-	strokeWeight( Node.radius * .5 );
 	for ( i = 0; i < aStar.openSet.length; i ++ ) {
 		aStar.openSet[i].show( '#74b9ff' );
 	}
@@ -42,8 +89,6 @@ function draw() {
 		aStar.closedSet[i].show( '#b2bec3' );
 	}
 
-	aStar.end.show( '#e84393' );
-
 	for ( i = 0; i < nodesCount; i ++ ) {
 		for ( j = 0; j < nodesCount; j ++ ) {
 			if ( nodes[i][j].blocked ) {
@@ -51,6 +96,8 @@ function draw() {
 			}
 		}
 	}
+
+	aStar.end.show( '#e84393' );
 
 	var parent = aStar.currentNode;
 	stroke( '#0984e3' );
@@ -68,8 +115,29 @@ function draw() {
 		fill( '#000' );
 		textSize( 32 );
 		textAlign( CENTER );
-		text( message, canvasSize/2, canvasSize + 25 );
+		text( message, canvasSize/2, canvasSize + 34 );
 		noLoop();
 	}
 
+}
+
+function mouseClicked() {
+	if ( mouseY > canvasSize ) {
+		switchGridBuilder();
+	}
+}
+
+function switchGridBuilder() {
+	gridBuilder = ! gridBuilder;
+
+	if ( gridBuilder ) {
+		// Reset nodes
+		for ( var i = 0; i < nodesCount; i ++ ) {
+			for ( var j = 0; j < nodesCount; j ++ ) {
+				nodes[i][j].parent = null;
+				nodes[i][j].estimate = null;
+				nodes[i][j].fromStart = null;
+			}
+		}
+	}
 }

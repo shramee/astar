@@ -3,8 +3,8 @@ function Node( i, j, blocked ) {
 	this.j = j;
 	this.blocked = blocked;
 	this.parent = null;
-	this.travelled = null;
 	this.estimate = null;
+	this.fromStart = null;
 }
 
 Node.radius = 25;
@@ -16,6 +16,7 @@ Node.prototype.coords = function ( clr ) {
 		( this.j + .5 ) * Node.radius + Node.offset
 	];
 };
+
 Node.prototype.show = function ( clr ) {
 	var
 		xy = this.coords();
