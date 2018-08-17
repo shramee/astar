@@ -72,6 +72,7 @@ AStar.prototype.setCurrentNode = function () {
 		closestI, dist, node;
 	for ( var i = 0; i < this.openSet.length; i ++ ) {
 		node = this.openSet[i];
+		if ( node.blocked ) continue;
 		dist = node.estimate;
 		if ( dist < closest ) {
 			closest = dist;

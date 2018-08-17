@@ -1,6 +1,5 @@
 var
 	nodes = [],
-	blockedNodes = [],
 	nodesCount = 50,
 	canvasSize = 700,
 	aStar, bgClr;
@@ -15,19 +14,11 @@ function setup() {
 
 	for ( var i = 0; i < nodesCount; i ++ ) {
 		nodes[i] = [];
-		blockedNodes[i] = [];
 		for ( var j = 0; j < nodesCount; j ++ ) {
 
 			var freeNode = i === j ?  i === nodesCount - 1 || i === 0 : false;
 
-			if (
-				freeNode ||
-				0.3 < Math.random()
-			) {
-				nodes[i][j] = new Node( i, j );
-			} else {
-				blockedNodes[i][j] = new Node( i, j );
-			}
+			nodes[i][j] = new Node( i, j, ! ( freeNode || 0.3 < Math.random() ) );
 		}
 	}
 
@@ -43,14 +34,6 @@ function draw() {
 	background( bgClr );
 	noFill();
 	strokeWeight( Node.radius * .5 );
-	for ( i = 0; i < nodesCount; i ++ ) {
-		for ( j = 0; j < nodesCount; j ++ ) {
-			if ( blockedNodes[i][j] ) {
-				blockedNodes[i][j].show( color( 0, 0, 0 ) );
-			}
-		}
-	}
-
 	for ( i = 0; i < aStar.openSet.length; i ++ ) {
 		aStar.openSet[i].show( '#74b9ff' );
 	}
@@ -60,6 +43,14 @@ function draw() {
 	}
 
 	aStar.end.show( '#e84393' );
+
+	for ( i = 0; i < nodesCount; i ++ ) {
+		for ( j = 0; j < nodesCount; j ++ ) {
+			if ( nodes[i][j].blocked ) {
+				nodes[i][j].show( color( 0, 0, 0 ) );
+			}
+		}
+	}
 
 	var parent = aStar.currentNode;
 	stroke( '#0984e3' );
