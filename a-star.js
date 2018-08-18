@@ -66,28 +66,37 @@ AStar.prototype.distanceBetween = function ( n1, n2 ) {
 /**
  * Sets current closest node
  */
-AStar.prototype.setCurrentNode = function () {
+AStar.prototype.getNodeToProcess = function () {
 	var
 		closest = Infinity,
-		closestI, dist, node;
-	for ( var i = 0; i < this.openSet.length; i ++ ) {
+		closestI, dist, node, currentNode;
+	for ( var i = this.openSet.length - 1; i > -1; i-- ) {
 		node = this.openSet[i];
-		if ( node.blocked ) continue;
-		dist = node.estimate;
-		if ( dist < closest ) {
-			closest = dist;
-			closestI = i;
+		if ( ! node.blocked ) {
+			dist = node.estimate;
+			if ( dist < closest ) {
+				closest = dist;
+				closestI = i;
+			}
+		} else {
+			this.openSet.splice( i, 1 );
 		}
 	}
+	currentNode = this.openSet[closestI];
 
-	this.currentNode = this.openSet[closestI];
-	this.closedSet.push( this.currentNode );
-
-	this.openSet.splice( closestI, 1 );
+	if ( currentNode ) {
+		this.closedSet.push( currentNode );
+		this.openSet.splice( closestI, 1 );
+	}
+	return currentNode;
 };
 
 AStar.prototype.processNodes = function () {
-	this.setCurrentNode();
+	var currentNode = this.getNodeToProcess();
+
+	if ( ! currentNode ) return;
+
+	this.currentNode = currentNode;
 
 	var
 		neighbours = this.currentNeighbours(),
@@ -101,13 +110,13 @@ AStar.prototype.processNodes = function () {
 
 		tentativeShortestPath = this.currentNode.fromStart + this.distanceBetween( this.currentNode, node );
 		indexInOpen = this.openSet.indexOf( node );
-		
+
 		if ( 0 > indexInOpen ) {
 			this.openSet.push( node );
 		} else if ( tentativeShortestPath > this.openSet[ indexInOpen ].fromStart ) {
 			continue;
 		}
-		
+
 		node.fromStart = tentativeShortestPath;
 		node.estimate = node.fromStart + this.estimateToEnd( node );
 		node.parent = this.currentNode;
